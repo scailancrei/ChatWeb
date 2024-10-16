@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Chat</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        color: #dedede;
+        height: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      main {
+        display: grid;
+        justify-items: center;
+      }
+
+      #buttonsRooms {
+        display: grid;
+        grid-template: 1fr / 1fr 1fr;
+        justify-items: center;
+        gap: 15px;
+        margin: 10px;
+        width: 50vw;
+      }
+      #chat {
+        display: grid;
+        background-color: #1b2337;
+        grid-template: 1fr 2fr 50px / 1fr;
+        justify-items: center;
+        height: 70vh;
+        margin: 10px;
+        padding: 10px 0 0px 0;
+      }
+
+      header {
+        display: grid;
+        grid-template: 1fr / 50% 50%;
+        justify-items: center;
+        align-items: baseline;
+        font-size: x-large;
+        width: 50vw;
+        gap: 30px;
+      }
+
+      #title-room {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        margin: 10px 20px 10px 10px;
+      }
+
+      #users-list {
+        padding: 10px 15px 10px 10px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      #users-list-connected {
+        width: 100px;
+        height: 40px;
+        margin: auto;
+        background-color: #292d2f;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
+        overflow-x: hidden;
+      }
+
+      #messages-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        height: 40vh;
+        border: #09f solid 1px;
+        overflow-y: scroll;
+        width: 70vw;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+      }
+
+      #message-send {
+        background-color: #005c4b;
+        display: flex;
+        width: min-content;
+        max-width: max-content;
+        padding: 5px;
+        border-radius: 5px;
+        margin: 5px;
+        gap: 5px;
+        align-items: center;
+        align-self: flex-end;
+        justify-content: flex-end;
+      }
+      #message-recieved {
+        background-color: rgb(32 44 51);
+        display: flex;
+        width: fit-content;
+        padding: 5px;
+        border-radius: 5px;
+        margin: 5px;
+        gap: 5px;
+        flex-direction: column-reverse;
+      }
+
+      #name {
+        display: flex;
+        justify-content: flex-start;
+
+        padding: 3px;
+        color: #fa6533;
+      }
+      #message {
+        display: flex;
+        align-items: center;
+        padding: 3px;
+      }
+
+      #date {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+      }
+
+      #form-section {
+        display: flex;
+        background-color: #22292d;
+        justify-content: center;
+        align-items: center;
+        width: 70vw;
+        gap: 10px;
+        padding: 1rem;
+        border: 1px solid black;
+      }
+
+      .formulario {
+        width: inherit;
+        height: 50%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+      #mensaje {
+        width: 70%;
+      }
+
+      button {
+        background-color: #09f;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        padding: 5px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+
+      button:focus {
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <div class="mainDiv">
+        <h2>This is a chat web</h2>
+      </div>
+      <div id="buttonsRooms">
+        <button id="joinRoom">Join Room</button>
+        <button id="createRoom">Create Room</button>
+      </div>
+      <div id="chat">
+        <header>
+          <div id="title-room">Room waitroom</div>
+
+          <div id="users-list">
+            <span>Users connected</span>
+            <div id="users-list-connected"></div>
+          </div>
+        </header>
+        <div id="messages-list"></div>
+
+        <section id="form-section">
+          <form id="formulario" class="formulario">
+            <input
+              id="mensaje"
+              type="text"
+              name="message"
+              placeholder="type a message"
+              autocomplete="off"
+            />
+            <button type="submit">SEND</button>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <script type="module">
+      import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js"
+      const socket = io()
+      let userName = ""
+      const chat = document.getElementById("chat")
+      const form = document.getElementById("formulario")
+      const input = document.getElementById("mensaje")
+      const messagesList = []
+      const messagesListDiv = document.getElementById("messages-list")
+      const connectedList = document.getElementById("users-list-connected")
+      const titleRoom = document.getElementById("title-room")
+
+      let userList = []
+      let room = ""
+
+      function createRoom() {
+        room = prompt("Enter room name")
+        chat.style.display = "flex"
+        socket.emit("create room", { room, socketId: socket.id })
+        const title = document.createElement("h2")
+        title.innerText = `Room ${room}`
+        titleRoom.appendChild(title)
+        document.getElementById("createRoom").toggleAttribute("disabled")
+      }
+
+      function join() {
+        userName = prompt("Enter your name")
+        if (userName) {
+          socket.emit("join", { room: "chatroom", name: userName })
+        }
+
+        if (socket.connected && userName) {
+          chat.style.display = "grid"
+          document.getElementById("joinRoom").removeEventListener("click", join)
+          document.getElementById("joinRoom").textContent = "Leave Room"
+          document
+            .getElementById("joinRoom")
+            .addEventListener("click", disconnect)
+
+          titleRoom.innerHTML = `Welcome Room`
+        }
+      }
+
+      document
+        .getElementById("createRoom")
+        .addEventListener("click", createRoom)
+      document.getElementById("joinRoom").addEventListener("click", join)
+
+      function disconnect() {
+        chat.style.display = "none"
+        socket.emit("leaving", userName)
+        console.log("disconnected")
+        document.getElementById("joinRoom").textContent = "Join Room"
+        document
+          .getElementById("joinRoom")
+          .removeEventListener("click", disconnect)
+        document.getElementById("joinRoom").removeAttribute("disabled")
+        document.getElementById("joinRoom").addEventListener("click", join)
+      }
+
+      socket.on("connect", () => {
+        console.log("user connected")
+      })
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault()
+        if (input.value) {
+          socket.emit("sender message", {
+            message: input.value,
+            name: userName,
+            id: socket.id,
+            timeStamp: new Date().toLocaleString().slice(12, -3)
+          })
+          input.value = ""
+        }
+      })
+
+      socket.on("joined room", (list, objectName) => {
+        userList = [...list]
+        let connectedDiv = document.createElement("div")
+        let connectedAttribute = document.createAttribute("id")
+        connectedAttribute.value = "user"
+        connectedDiv.setAttributeNode(connectedAttribute)
+        connectedDiv.innerHTML = `${userList
+          .map((user) => {
+            return user.name
+          })
+          .join("<br>")}`
+
+        console.log(connectedDiv)
+        connectedList.appendChild(connectedDiv)
+
+        console.log(`${objectName} has joined the room`)
+      })
+
+      socket.on("left room", (object) => {
+        const newArray = userList.filter((user) => {
+          return user.id !== object.id
+        })
+        console.log(`${object.name} has left the room`)
+        console.log(newArray)
+        userList = [...newArray]
+        connectedList.innerHTML = `<div>${userList
+          .map((user) => {
+            return user.name
+          })
+          .join("<br>")}</div>`
+      })
+
+      socket.on("sender message", (info) => {
+        messagesList.push(info.message)
+
+        let messageSendDiv = document.createElement("div")
+        let messageSendAttribute = document.createAttribute("id")
+        messageSendAttribute.value = "message-send"
+        messageSendDiv.setAttributeNode(messageSendAttribute)
+        messageSendDiv.innerHTML = info.message
+        messagesListDiv.appendChild(messageSendDiv)
+        console.log(messagesList)
+        messagesListDiv.scrollTop = messagesListDiv.scrollHeight
+      })
+
+      socket.on("recieved message", (info) => {
+        messagesList.push(info.message)
+        let messageRecievedDiv = document.createElement("div")
+        let spanMessage = document.createElement("span")
+        let spanName = document.createElement("span")
+        let spanTimeStamp = document.createElement("span")
+        spanMessage.setAttribute("id", "message")
+        spanName.setAttribute("id", "name")
+        spanTimeStamp.setAttribute("id", "date")
+
+        spanTimeStamp.innerHTML = info.timeStamp
+        spanMessage.innerHTML = info.message
+        spanName.innerHTML = info.name
+        let messageRecievedAttribute = document.createAttribute("id")
+        messageRecievedAttribute.value = "message-recieved"
+        messageRecievedDiv.setAttributeNode(messageRecievedAttribute)
+        messageRecievedDiv.appendChild(spanTimeStamp)
+        messageRecievedDiv.appendChild(spanMessage)
+        messageRecievedDiv.appendChild(spanName)
+        messagesListDiv.appendChild(messageRecievedDiv)
+        messagesListDiv.scrollTop = messagesListDiv.scrollHeight
+      })
+
+      socket.on("disconnect", (name) => {
+        console.log(`${name} has disconnected`)
+      })
+    </script>
+  </body>
+</html>
