@@ -28,7 +28,7 @@
         width: 50vw;
       }
       #chat {
-        display: grid;
+        display: none;
         background-color: #1b2337;
         grid-template: 1fr 2fr 50px / 1fr;
         justify-items: center;
@@ -38,13 +38,9 @@
       }
 
       header {
-        display: grid;
-        grid-template: 1fr / 50% 50%;
-        justify-items: center;
-        align-items: baseline;
-        font-size: x-large;
-        width: 50vw;
-        gap: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
       #title-room {
@@ -68,13 +64,14 @@
       #users-list-connected {
         width: 100px;
         height: 40px;
-        margin: auto;
+        margin: auto auto auto 0;
         background-color: #292d2f;
         padding: 1rem;
         display: flex;
         flex-direction: column;
-        overflow-y: scroll;
+        overflow-y: auto;
         overflow-x: hidden;
+        align-items: center;
       }
 
       #messages-list {
@@ -84,7 +81,7 @@
         padding: 10px;
         height: 40vh;
         border: #09f solid 1px;
-        overflow-y: scroll;
+        overflow-y: auto;
         width: 70vw;
         word-wrap: break-word;
         white-space: pre-wrap;
@@ -95,7 +92,7 @@
         display: flex;
         width: min-content;
         max-width: max-content;
-        padding: 5px;
+        padding: 15px;
         border-radius: 5px;
         margin: 5px;
         gap: 5px;
@@ -109,7 +106,7 @@
         width: fit-content;
         padding: 5px;
         border-radius: 5px;
-        margin: 5px;
+        margin: 15px;
         gap: 5px;
         flex-direction: column-reverse;
       }
@@ -167,6 +164,16 @@
         font-size: 15px;
         cursor: pointer;
       }
+      button:disabled {
+        background-color: #09f;
+        opacity: 0.5;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        padding: 5px;
+        font-size: 15px;
+        cursor: pointer;
+      }
     </style>
   </head>
 
@@ -181,7 +188,7 @@
       </div>
       <div id="chat">
         <header>
-          <div id="title-room">Room waitroom</div>
+          <div id="title-room"></div>
 
           <div id="users-list">
             <span>Users connected</span>
@@ -213,6 +220,8 @@
       const form = document.getElementById("formulario")
       const input = document.getElementById("mensaje")
       const messagesList = []
+      const joinRoom = document.getElementById("joinRoom")
+      const createRoom = document.getElementById("createRoom")
       const messagesListDiv = document.getElementById("messages-list")
       const connectedList = document.getElementById("users-list-connected")
       const titleRoom = document.getElementById("title-room")
@@ -220,49 +229,44 @@
       let userList = []
       let room = ""
 
-      function createRoom() {
-        room = prompt("Enter room name")
-        chat.style.display = "flex"
-        socket.emit("create room", { room, socketId: socket.id })
-        const title = document.createElement("h2")
-        title.innerText = `Room ${room}`
-        titleRoom.appendChild(title)
-        document.getElementById("createRoom").toggleAttribute("disabled")
+      function create() {
+        room = prompt("Enter the room's name")
+        userName = prompt("Enter your name")
+        if (room && userName) {
+          socket.emit("create room", {
+            room: room,
+            socketId: socket.id,
+            name: userName
+          })
+
+          chat.style.display = "grid"
+          const title = document.createElement("h2")
+          title.innerText = `Room ${room}`
+          titleRoom.appendChild(title)
+          createRoom.toggleAttribute("disabled")
+        }
       }
 
       function join() {
         userName = prompt("Enter your name")
-        if (userName) {
-          socket.emit("join", { room: "chatroom", name: userName })
-        }
-
-        if (socket.connected && userName) {
-          chat.style.display = "grid"
-          document.getElementById("joinRoom").removeEventListener("click", join)
-          document.getElementById("joinRoom").textContent = "Leave Room"
-          document
-            .getElementById("joinRoom")
-            .addEventListener("click", disconnect)
-
-          titleRoom.innerHTML = `Welcome Room`
+        room = prompt("Enter room name")
+        if (userName && room) {
+          socket.emit("join", { room: room, name: userName })
         }
       }
 
-      document
-        .getElementById("createRoom")
-        .addEventListener("click", createRoom)
-      document.getElementById("joinRoom").addEventListener("click", join)
+      createRoom.addEventListener("click", create)
+      joinRoom.addEventListener("click", join)
 
       function disconnect() {
-        chat.style.display = "none"
-        socket.emit("leaving", userName)
+        socket.emit("leaving", userName, room)
         console.log("disconnected")
-        document.getElementById("joinRoom").textContent = "Join Room"
-        document
-          .getElementById("joinRoom")
-          .removeEventListener("click", disconnect)
-        document.getElementById("joinRoom").removeAttribute("disabled")
-        document.getElementById("joinRoom").addEventListener("click", join)
+        chat.style.display = "none"
+
+        joinRoom.textContent = "Join Room"
+        joinRoom.removeEventListener("click", disconnect)
+        createRoom.removeAttribute("disabled")
+        joinRoom.addEventListener("click", join)
       }
 
       socket.on("connect", () => {
@@ -276,6 +280,7 @@
             message: input.value,
             name: userName,
             id: socket.id,
+            room: room,
             timeStamp: new Date().toLocaleString().slice(12, -3)
           })
           input.value = ""
@@ -283,35 +288,50 @@
       })
 
       socket.on("joined room", (list, objectName) => {
-        userList = [...list]
-        let connectedDiv = document.createElement("div")
-        let connectedAttribute = document.createAttribute("id")
-        connectedAttribute.value = "user"
-        connectedDiv.setAttributeNode(connectedAttribute)
-        connectedDiv.innerHTML = `${userList
-          .map((user) => {
-            return user.name
+        if (socket.connected && userName) {
+          chat.style.display = "grid"
+          joinRoom.removeEventListener("click", join)
+          joinRoom.textContent = "Leave Room"
+          joinRoom.addEventListener("click", disconnect)
+
+          titleRoom.innerHTML = `Welcome to room ${room}`
+
+          const newArray = [...list]
+          while (connectedList.hasChildNodes()) {
+            connectedList.removeChild(connectedList.firstChild)
+          }
+          newArray.map((user) => {
+            let connectedDiv = document.createElement("div")
+            let connectedAttribute = document.createAttribute("id")
+            connectedAttribute.value = "user"
+            connectedDiv.setAttributeNode(connectedAttribute)
+            connectedDiv.innerHTML += `${user.name}`
+            connectedList.appendChild(connectedDiv)
           })
-          .join("<br>")}`
-
-        console.log(connectedDiv)
-        connectedList.appendChild(connectedDiv)
-
-        console.log(`${objectName} has joined the room`)
+          userList = [...newArray]
+          console.log(`${objectName} has joined the room`)
+        }
       })
 
       socket.on("left room", (object) => {
-        const newArray = userList.filter((user) => {
+        let newArray = userList.filter((user) => {
           return user.id !== object.id
         })
         console.log(`${object.name} has left the room`)
-        console.log(newArray)
-        userList = [...newArray]
-        connectedList.innerHTML = `<div>${userList
-          .map((user) => {
-            return user.name
-          })
-          .join("<br>")}</div>`
+
+        while (connectedList.hasChildNodes()) {
+          connectedList.removeChild(connectedList.firstChild)
+        }
+        console.log(connectedList)
+        newArray.map((user) => {
+          let connectedDiv = document.createElement("div")
+          let connectedAttribute = document.createAttribute("id")
+          connectedAttribute.value = "user"
+          connectedDiv.setAttributeNode(connectedAttribute)
+          connectedDiv.innerHTML += `${user.name}`
+          connectedList.appendChild(connectedDiv)
+        })
+        console.log(connectedList)
       })
 
       socket.on("sender message", (info) => {
