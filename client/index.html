@@ -328,7 +328,7 @@
           let connectedAttribute = document.createAttribute("id")
           connectedAttribute.value = "user"
           connectedDiv.setAttributeNode(connectedAttribute)
-          connectedDiv.innerHTML += `${user.name}`
+          connectedDiv.textContent += `${user.name}`
           connectedList.appendChild(connectedDiv)
         })
         console.log(connectedList)
@@ -341,7 +341,7 @@
         let messageSendAttribute = document.createAttribute("id")
         messageSendAttribute.value = "message-send"
         messageSendDiv.setAttributeNode(messageSendAttribute)
-        messageSendDiv.innerHTML = info.message
+        messageSendDiv.textContent = info.message
         messagesListDiv.appendChild(messageSendDiv)
         console.log(messagesList)
         messagesListDiv.scrollTop = messagesListDiv.scrollHeight
@@ -357,9 +357,9 @@
         spanName.setAttribute("id", "name")
         spanTimeStamp.setAttribute("id", "date")
 
-        spanTimeStamp.innerHTML = info.timeStamp
-        spanMessage.innerHTML = info.message
-        spanName.innerHTML = info.name
+        spanTimeStamp.textContent = info.timeStamp
+        spanMessage.textContent = info.message
+        spanName.textContent = info.name
         let messageRecievedAttribute = document.createAttribute("id")
         messageRecievedAttribute.value = "message-recieved"
         messageRecievedDiv.setAttributeNode(messageRecievedAttribute)
