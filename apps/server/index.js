@@ -16,7 +16,6 @@ const io = new Server(server, {
 
 app.get("/", (req, res) => {
   res.sendFile(process.cwd() + "/apps/client/index.html")
-  console.log(process.cwd())
 })
 
 let userList = []
