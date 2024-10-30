@@ -15,8 +15,7 @@ const io = new Server(server, {
 })
 
 app.get("/", (req, res) => {
-  res.sendFile(process.cwd() + "/client/index.html")
-  console.log(process.cwd())
+  res.sendFile(process.cwd() + "/apps/client/index.html")
 })
 
 let userList = []
@@ -30,16 +29,15 @@ io.on("connection", (socket) => {
     userList.push({ name: object.name, room: object.room, id: socket.id })
 
     console.log(`user ${object.name} has joined the room ${object.room}`)
-    console.log(userList)
+
     const roomList = userList.filter((user) => {
       return user.room === object.room
     })
-    console.log(roomList)
+
     io.to(object.room).emit("joined room", roomList, object.name)
   })
 
   socket.on("create room", (object) => {
-    console.log(socket.rooms)
     socket.leave(socket.rooms)
     socket.join(object.room)
     console.log(`room ${object.room} has been created`)
@@ -54,7 +52,6 @@ io.on("connection", (socket) => {
   socket.on("leaving", (name, room) => {
     socket.leave(room)
     console.log(`user ${name} left the room`)
-    console.log(socket.id)
 
     const newArray = [
       ...userList.filter((user) => {
@@ -70,7 +67,6 @@ io.on("connection", (socket) => {
   //Sending a message
   socket.on("sender message", (info) => {
     console.log(`${info.name} sent ${info.message}`)
-    console.log(info)
     socket.to(info.room).emit("recieved message", info)
     console.log(info.timeStamp)
     socket.emit("sender message", info)
