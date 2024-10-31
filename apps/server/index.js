@@ -16,7 +16,7 @@ const io = new Server(server, {
 
 app.use(express.static(process.cwd() + "/dist"))
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/dist/apps/client/index.html")
+  res.sendFile(process.cwd() + "/dist/apps/client/index.html")
 })
 
 let userList = []
