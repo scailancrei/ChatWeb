@@ -3,14 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "./apps/server/index.js",
   "scripts": {
     "build": "vite build",
     "dev-build": "vite build --watch",
     "start": "node ./apps/server/index.js",
     "dev": "nodemon --watch ./apps/server/index.js",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "npm run build && vite preview"
   },
   "keywords": [],
   "author": "",

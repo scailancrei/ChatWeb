@@ -1,5 +1,11 @@
 import { defineConfig } from "vite"
 
 export default defineConfig({
-  base: "/ChatWeb/"
+  build: {
+    rollupOptions: {
+      input: {
+        main: process.cwd() + "/apps/client/index.html"
+      }
+    }
+  }
 })
