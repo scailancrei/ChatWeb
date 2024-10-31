@@ -1,0 +1,19 @@
+name: Principal workflow
+
+on:
+  push:
+   branches: ["main"]
+
+jobs: 
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4.1.0
+        with:
+          node-version: 22.9.0
+          cache: 'npm'
+      - run: npm install --legacy-peer-deps
+      - run: npm run build
+
