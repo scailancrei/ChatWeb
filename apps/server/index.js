@@ -14,7 +14,7 @@ const io = new Server(server, {
   connectionStateRecovery: {}
 })
 
-app.use(express.static(__dirname + "/dist"))
+app.use(express.static(process.cwd() + "/dist"))
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/dist/apps/client/index.html")
 })
