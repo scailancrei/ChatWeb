@@ -3,6 +3,7 @@ import cors from "cors"
 import { Server } from "socket.io"
 import { createServer } from "http"
 import morgan from "morgan"
+import path from "path"
 
 const app = express()
 
@@ -14,9 +15,9 @@ const io = new Server(server, {
   connectionStateRecovery: {}
 })
 
-app.use(express.static(process.cwd() + "/dist"))
+app.use(express.static(path.join(process.cwd(), "/docs/apps/client/dist")))
 app.get("/", (req, res) => {
-  res.sendFile(process.cwd() + "/dist/apps/client/index.html")
+  res.sendFile(path.join(process.cwd(), "/docs/apps/client/dist/index.html"))
 })
 
 let userList = []

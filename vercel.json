@@ -1,0 +1,15 @@
+{
+  "builds": [
+    {
+      "src": "docs/apps/client/index.html",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "docs/apps/client/dist"
+      }
+    },
+    {
+      "src": "docs/apps/server/index.js",
+      "use": "@vercel/node"
+    }
+  ]
+}
