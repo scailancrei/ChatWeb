@@ -15,9 +15,10 @@ const io = new Server(server, {
   connectionStateRecovery: {}
 })
 
-app.use(express.static(path.join(process.cwd(), "/docs/apps/client/dist")))
+app.use(express.static(path.join(process.cwd(), "/public")))
 app.get("/", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "/docs/apps/client/dist/index.html"))
+  res.sendFile(path.join(process.cwd(), "/public/index.html"))
+  console.log(process.cwd(), "/public/index.html")
 })
 
 let userList = []

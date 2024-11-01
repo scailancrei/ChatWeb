@@ -4,7 +4,7 @@
       "src": "docs/apps/client/index.html",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "docs/apps/client/dist"
+        "distDir": "public"
       }
     },
     {

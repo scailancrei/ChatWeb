@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Chat</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        color: #dedede;
+        height: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      main {
+        display: grid;
+        justify-items: center;
+      }
+
+      #buttonsRooms {
+        display: grid;
+        grid-template: 1fr / 1fr 1fr;
+        justify-items: center;
+        gap: 15px;
+        margin: 10px;
+        width: 50vw;
+      }
+      #chat {
+        display: none;
+        background-color: #1b2337;
+        grid-template: 1fr 2fr 50px / 1fr;
+        justify-items: center;
+        height: 70vh;
+        margin: 10px;
+        padding: 10px 0 0px 0;
+      }
+
+      header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #title-room {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        margin: 10px 20px 10px 10px;
+      }
+
+      #users-list {
+        padding: 10px 15px 10px 10px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      #users-list-connected {
+        width: 100px;
+        height: 40px;
+        margin: auto auto auto 0;
+        background-color: #292d2f;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        overflow-x: hidden;
+        align-items: center;
+      }
+
+      #messages-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        height: 40vh;
+        border: #09f solid 1px;
+        overflow-y: auto;
+        width: 70vw;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+      }
+
+      #message-send {
+        background-color: #005c4b;
+        display: flex;
+        width: min-content;
+        max-width: max-content;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 5px;
+        gap: 5px;
+        align-items: center;
+        align-self: flex-end;
+        justify-content: flex-end;
+      }
+      #message-recieved {
+        background-color: rgb(32 44 51);
+        display: flex;
+        width: fit-content;
+        padding: 5px;
+        border-radius: 5px;
+        margin: 15px;
+        gap: 5px;
+        flex-direction: column-reverse;
+      }
+
+      #name {
+        display: flex;
+        justify-content: flex-start;
+
+        padding: 3px;
+        color: #fa6533;
+      }
+      #message {
+        display: flex;
+        align-items: center;
+        padding: 3px;
+      }
+
+      #date {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+      }
+
+      #form-section {
+        display: flex;
+        background-color: #22292d;
+        justify-content: center;
+        align-items: center;
+        width: 70vw;
+        gap: 10px;
+        padding: 1rem;
+        border: 1px solid black;
+      }
+
+      .formulario {
+        width: inherit;
+        height: 50%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+      #mensaje {
+        width: 70%;
+      }
+
+      button {
+        background-color: #09f;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        padding: 5px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      button:disabled {
+        background-color: #09f;
+        opacity: 0.5;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        padding: 5px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/main-DwJjQccF.js"></script>
+  </head>
+
+  <body>
+    <main>
+      <div class="mainDiv">
+        <h2>This is a chat web</h2>
+      </div>
+      <div id="buttonsRooms">
+        <button id="joinRoom">Join Room</button>
+        <button id="createRoom">Create Room</button>
+      </div>
+      <div id="chat">
+        <header>
+          <div id="title-room"></div>
+
+          <div id="users-list">
+            <span>Users connected</span>
+            <div id="users-list-connected"></div>
+          </div>
+        </header>
+        <div id="messages-list"></div>
+
+        <section id="form-section">
+          <form id="formulario" class="formulario">
+            <input
+              id="mensaje"
+              type="text"
+              name="message"
+              placeholder="type a message"
+              autocomplete="off"
+            />
+            <button type="submit">SEND</button>
+          </form>
+        </section>
+      </div>
+    </main>
+
+  </body>
+</html>
