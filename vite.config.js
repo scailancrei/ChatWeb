@@ -4,7 +4,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: process.cwd() + "/apps/client/index.html"
+        main: process.cwd() + "/docs/apps/client/index.html"
       }
     }
   }
